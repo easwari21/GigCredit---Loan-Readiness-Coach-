@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigCredit — AI Credit Readiness Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #080810;
+  --surface: #10101A;
+  --surface2: #18182A;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #F0EFF8;
+  --muted: #888899;
+  --accent: #7C6FFF;
+  --accent2: #A594FF;
+  --green: #2DD98F;
+  --amber: #F5A623;
+  --red: #FF5B5B;
+  --teal: #00C9A7;
+  --pink: #FF6B9D;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --r: 12px;
+  --r-lg: 18px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.6; overflow-x: hidden; }
+
+/* ---- ANIMATED BACKGROUND ---- */
+.ambient-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(124,111,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 80%, rgba(45,217,143,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 60% 10%, rgba(255,107,157,0.04) 0%, transparent 60%);
+  animation: ambientShift 12s ease-in-out infinite alternate;
+}
+@keyframes ambientShift {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* ---- NAV ---- */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; height: 58px;
+  background: rgba(8,8,16,0.88); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.nav-logo span { color: var(--accent); }
+.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.nav-links { display: flex; gap: 4px; }
+.nav-link { font-size: 13px; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: var(--muted); border: 1px solid transparent; transition: all .2s; font-family: var(--font-body); background: none; }
+.nav-link:hover { color: var(--text); border-color: var(--border2); }
+.nav-link.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-cta { font-size: 13px; padding: 7px 18px; border-radius: 999px; background: var(--green); color: #060; border: none; cursor: pointer; font-family: var(--font-body); font-weight: 600; transition: all .2s; }
+.nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+/* ---- PAGES ---- */
+.page { display: none; padding-top: 58px; min-height: 100vh; position: relative; z-index: 1; }
+.page.active { display: block; }
+
+/* =================== LANDING =================== */
+.hero {
+  min-height: calc(100vh - 58px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem; position: relative; overflow: hidden;
+}
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 90%);
+}
+.hero-content { position: relative; z-index: 1; max-width: 800px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600;
+  color: var(--green); background: rgba(45,217,143,0.08); border: 1px solid rgba(45,217,143,0.25);
+  padding: 5px 16px; border-radius: 999px; margin-bottom: 2.5rem; letter-spacing: .06em; text-transform: uppercase;
+}
+.live-pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1.5s infinite; }
+.hero h1 { font-family: var(--font-display); font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; line-height: 1.08; margin-bottom: 1.5rem; }
+.hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--accent2), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero p { font-size: 17px; color: var(--muted); max-width: 540px; margin: 0 auto 2.5rem; line-height: 1.75; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-primary { padding: 13px 28px; background: var(--accent); color: #fff; border: none; border-radius: var(--r); font-family: var(--font-body); font-size: 15px; font-weight: 500; cursor: pointer; transition: all .2s; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,111,255,0.3); }
+.btn-outline { padding: 13px 28px; background: transparent; color: var(--text); border: 1px solid var(--border2); border-radius: var(--r); font-family: var(--font-body); font-size: 15px; cursor: pointer; transition: all .2s; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.hero-stats { display: flex; gap: 3rem; justify-content: center; margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.stat { text-align: center; }
+.stat-num { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ---- LIVE TICKER ---- */
+.ticker-wrap { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 10px 0; overflow: hidden; }
+.ticker-inner { display: flex; gap: 4rem; animation: ticker 22s linear infinite; white-space: nowrap; }
+@keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.ticker-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.ticker-item .ti-badge { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(45,217,143,0.12); color: var(--green); font-weight: 600; }
+
+/* HOW IT WORKS */
+.section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+.section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 1rem; }
+.section-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+.section-sub { font-size: 16px; color: var(--muted); max-width: 560px; margin-bottom: 3rem; line-height: 1.7; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.step-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2rem;
+  position: relative; transition: all .25s; overflow: hidden;
+}
+.step-card::before { content:''; position:absolute; inset:0; background: linear-gradient(135deg, rgba(124,111,255,0.04), transparent); opacity:0; transition:.25s; }
+.step-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(124,111,255,0.12); }
+.step-card:hover::before { opacity:1; }
+.step-num { font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-bottom: 1rem; opacity: 0.7; }
+.step-icon { font-size: 30px; margin-bottom: 1rem; }
+.step-card h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: .5rem; }
+.step-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+/* FEATURES */
+.features-strip { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 4rem 2rem; }
+.features-inner { max-width: 1100px; margin: 0 auto; }
+.features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-top: 3rem; }
+.feat-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; transition: border-color .2s; }
+.feat-card:hover { border-color: rgba(124,111,255,0.4); }
+.feat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 1rem; }
+.fi-purple { background: rgba(124,111,255,0.12); }
+.fi-green { background: rgba(45,217,143,0.1); }
+.fi-amber { background: rgba(245,166,35,0.1); }
+.fi-teal { background: rgba(0,201,167,0.1); }
+.fi-pink { background: rgba(255,107,157,0.1); }
+.feat-card h4 { font-size: 14px; font-weight: 500; margin-bottom: .4rem; }
+.feat-card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.feat-new { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: rgba(45,217,143,0.12); color: var(--green); border: 1px solid rgba(45,217,143,0.25); margin-top: 8px; display: inline-block; }
+.feat-hot { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: rgba(255,107,157,0.1); color: var(--pink); border: 1px solid rgba(255,107,157,0.25); margin-top: 8px; display: inline-block; }
+
+/* =================== ONBOARDING =================== */
+.onboard-wrap { max-width: 560px; margin: 0 auto; padding: 3rem 2rem; }
+.onboard-progress { display: flex; gap: 8px; justify-content: center; margin-bottom: 2.5rem; }
+.op-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border2); transition: all .3s; }
+.op-dot.done { background: var(--green); }
+.op-dot.active { background: var(--accent); transform: scale(1.3); }
+.onboard-step { display: none; }
+.onboard-step.active { display: block; animation: fadeUp .35s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.onboard-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2.5rem; }
+.onboard-card h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin-bottom: .75rem; }
+.onboard-card p { color: var(--muted); font-size: 14px; margin-bottom: 1.75rem; line-height: 1.65; }
+.next-btn { width: 100%; padding: 13px; background: var(--accent); color: #fff; border: none; border-radius: var(--r); font-family: var(--font-body); font-size: 15px; font-weight: 500; cursor: pointer; transition: all .2s; }
+.next-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+.platform-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-bottom: 1.75rem; }
+.plat-opt { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 1.1rem; text-align: center; cursor: pointer; transition: all .2s; }
+.plat-opt:hover { border-color: var(--accent); }
+.plat-opt.selected { border-color: var(--accent); background: rgba(124,111,255,0.08); }
+.p-emoji { font-size: 26px; margin-bottom: 6px; }
+.p-name { font-size: 12px; color: var(--muted); }
+
+/* =================== WORKER PORTAL =================== */
+.portal-layout { display: grid; grid-template-columns: 224px 1fr; min-height: calc(100vh - 58px); }
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 1.25rem .875rem; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--r); font-size: 13px; color: var(--muted); cursor: pointer; transition: all .15s; border: 1px solid transparent; }
+.sidebar-item:hover { background: var(--surface2); color: var(--text); }
+.sidebar-item.active { background: rgba(124,111,255,0.1); color: var(--accent2); border-color: rgba(124,111,255,0.18); }
+.sidebar-item .s-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 12px 12px 4px; opacity: 0.45; }
+.portal-content { padding: 2rem; overflow-y: auto; background: var(--bg); }
+
+/* DASHBOARD METRICS */
+.dash-header { margin-bottom: 2rem; }
+.dash-header h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+.dash-header p { font-size: 13px; color: var(--muted); }
+.dash-top { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.25rem; transition: border-color .2s; }
+.metric:hover { border-color: var(--border2); }
+.metric-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .5rem; }
+.metric-val { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
+.metric-sub { font-size: 12px; margin-top: 4px; }
+.mv-green { color: var(--green); }
+.mv-amber { color: var(--amber); }
+.mv-red { color: var(--red); }
+.mv-purple { color: var(--accent2); }
+
+/* GAUGE */
+.gauge-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: auto 1fr; gap: 2.5rem; align-items: center; }
+.gauge-wrap { position: relative; width: 160px; height: 160px; flex-shrink: 0; }
+.gauge-wrap canvas { width: 160px; height: 160px; }
+.gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.gauge-pct { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; color: var(--text); }
+.gauge-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.gauge-info h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; margin-bottom: .5rem; }
+.gauge-info p { font-size: 13px; color: var(--muted); margin-bottom: 1rem; line-height: 1.6; }
+.gauge-bar-wrap { margin-bottom: .55rem; }
+.gauge-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.gauge-bar { height: 6px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+.gauge-bar-fill { height: 100%; border-radius: 999px; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+
+/* ACTION PLAN */
+.plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+.plan-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.25rem; }
+.plan-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+.plan-week { font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(124,111,255,0.1); padding: 3px 8px; border-radius: 999px; font-family: var(--font-mono); }
+.plan-status { font-size: 11px; padding: 3px 8px; border-radius: 999px; font-weight: 500; }
+.ps-done { background: rgba(45,217,143,0.1); color: var(--green); }
+.ps-active { background: rgba(245,166,35,0.1); color: var(--amber); }
+.ps-pending { background: rgba(138,136,153,0.1); color: var(--muted); }
+.plan-card h4 { font-size: 14px; font-weight: 500; margin-bottom: .4rem; }
+.plan-card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.plan-progress { margin-top: .75rem; }
+.pp-bar { height: 4px; background: var(--surface2); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+.pp-fill { height: 100%; border-radius: 999px; background: var(--accent); }
+
+/* CONTENT TITLE */
+.content-title { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 14px; font-weight: 600; margin-bottom: 1rem; color: var(--muted); }
+.content-title-bar { width: 3px; height: 16px; background: var(--accent); border-radius: 2px; }
+.mini-chart { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; margin-bottom: 1.5rem; }
+.mini-chart h4 { font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 1rem; }
+
+/* LENDER */
+.lender-list { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.5rem; }
+.lender-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.25rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; transition: border-color .2s; }
+.lender-card:hover { border-color: var(--accent); }
+.lender-name { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
+.lender-meta { font-size: 12px; color: var(--muted); margin-bottom: .5rem; }
+.lender-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ltag { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.lender-match { text-align: right; }
+.lmatch-pct { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--green); }
+.lmatch-label { font-size: 11px; color: var(--muted); }
+.apply-btn { margin-top: .5rem; font-size: 12px; padding: 5px 14px; border-radius: 999px; background: var(--accent); color: #fff; border: none; cursor: pointer; font-family: var(--font-body); transition: all .2s; }
+.apply-btn:hover { opacity: 0.8; transform: translateY(-1px); }
+
+/* VOICE */
+.voice-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2rem; margin-bottom: 1.5rem; }
+.voice-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.voice-icon { width: 52px; height: 52px; border-radius: 50%; background: rgba(124,111,255,0.12); border: 1px solid rgba(124,111,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.voice-top h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
+.voice-top p { font-size: 12px; color: var(--muted); }
+.lang-select { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.lang-btn { font-size: 12px; padding: 5px 14px; border-radius: 999px; border: 1px solid var(--border2); color: var(--muted); background: transparent; cursor: pointer; font-family: var(--font-body); transition: all .15s; }
+.lang-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.voice-chat { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 1rem; min-height: 200px; margin-bottom: 1rem; display: flex; flex-direction: column; gap: .75rem; overflow-y: auto; max-height: 320px; }
+.chat-msg { max-width: 80%; padding: 10px 14px; border-radius: var(--r); font-size: 13px; line-height: 1.6; }
+.msg-user { background: var(--accent); color: #fff; align-self: flex-end; border-radius: var(--r) var(--r) 4px var(--r); }
+.msg-bot { background: var(--surface2); color: var(--text); align-self: flex-start; border-radius: var(--r) var(--r) var(--r) 4px; }
+.msg-label { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+.voice-input-row { display: flex; gap: .75rem; }
+.voice-text-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r); padding: 10px 14px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; }
+.voice-text-input:focus { border-color: var(--accent); }
+.voice-send { padding: 10px 20px; background: var(--accent); color: #fff; border: none; border-radius: var(--r); cursor: pointer; font-family: var(--font-body); font-weight: 500; transition: all .2s; }
+.voice-send:hover { opacity: 0.85; }
+.mic-btn { width: 42px; height: 42px; border-radius: 50%; background: rgba(45,217,143,0.1); border: 1px solid rgba(45,217,143,0.25); color: var(--green); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.mic-btn.recording { background: rgba(255,91,91,0.12); border-color: var(--red); color: var(--red); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+.quick-asks { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+.qa-btn { font-size: 11px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border2); color: var(--muted); background: transparent; cursor: pointer; font-family: var(--font-body); transition: all .15s; }
+.qa-btn:hover { color: var(--text); border-color: var(--accent2); }
+
+/* INCOME LOG */
+.cash-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; margin-bottom: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r); padding: 9px 12px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color .2s; }
+.form-input:focus { border-color: var(--accent); }
+.form-select { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r); padding: 9px 12px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; }
+.income-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.income-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 1rem; padding: 12px 1rem; border-bottom: 1px solid var(--border); align-items: center; font-size: 13px; }
+.income-row:last-child { border-bottom: none; }
+.income-row.header { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--surface2); }
+.badge-upi { background: rgba(45,217,143,0.1); color: var(--green); font-size: 10px; padding: 2px 7px; border-radius: 999px; font-weight: 600; }
+.badge-cash { background: rgba(245,166,35,0.1); color: var(--amber); font-size: 10px; padding: 2px 7px; border-radius: 999px; font-weight: 600; }
+
+/* SIMULATOR */
+.sim-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2rem; margin-bottom: 1.5rem; }
+.sim-card h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.slider-row { margin-bottom: 1.25rem; }
+.slider-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.slider-val { color: var(--text); font-weight: 500; }
+input[type=range] { width: 100%; accent-color: var(--accent); height: 4px; cursor: pointer; }
+.sim-result { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 1.25rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1.5rem; text-align: center; }
+.sr-val { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
+.sr-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* PROGRESS TRACKER */
+.progress-timeline { display: flex; flex-direction: column; gap: 0; }
+.pt-item { display: flex; gap: 1rem; padding: 1rem 0; position: relative; }
+.pt-item:not(:last-child)::after { content:''; position:absolute; left:15px; top:42px; bottom:0; width:1px; background: var(--border); }
+.pt-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.dot-done { background: rgba(45,217,143,0.12); border: 1px solid rgba(45,217,143,0.35); }
+.dot-active { background: rgba(124,111,255,0.12); border: 1px solid rgba(124,111,255,0.35); animation: pulse 2s infinite; }
+.dot-pending { background: var(--surface2); border: 1px solid var(--border); }
+.pt-content h4 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.pt-content p { font-size: 12px; color: var(--muted); }
+.pt-date { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-top: 4px; }
+
+/* LENDER DASHBOARD */
+.ld-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.applicant-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.at-header { display: grid; grid-template-columns: 1fr .6fr .8fr .8fr .8fr .7fr; gap: .75rem; padding: 10px 1rem; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--surface2); align-items: center; }
+.at-row { display: grid; grid-template-columns: 1fr .6fr .8fr .8fr .8fr .7fr; gap: .75rem; padding: 12px 1rem; border-top: 1px solid var(--border); align-items: center; transition: background .15s; }
+.at-row:hover { background: var(--surface); }
+.worker-info { display: flex; align-items: center; gap: 10px; }
+.worker-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(124,111,255,0.12); border: 1px solid rgba(124,111,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--accent2); flex-shrink: 0; }
+.worker-name { font-size: 13px; font-weight: 500; }
+.worker-platform { font-size: 11px; color: var(--muted); }
+.score-pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; font-family: var(--font-mono); }
+.sp-high { background: rgba(45,217,143,0.1); color: var(--green); }
+.sp-mid { background: rgba(245,166,35,0.1); color: var(--amber); }
+.sp-low { background: rgba(255,91,91,0.1); color: var(--red); }
+.action-badge { font-size: 11px; padding: 4px 12px; border-radius: 999px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font-body); transition: all .15s; }
+.ab-approve { background: rgba(45,217,143,0.12); color: var(--green); border: 1px solid rgba(45,217,143,0.2); }
+.ab-approve:hover { background: rgba(45,217,143,0.22); }
+.ab-review { background: rgba(245,166,35,0.1); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+.ab-watch { background: rgba(255,91,91,0.08); color: var(--red); border: 1px solid rgba(255,91,91,0.15); }
+.hide-sm {}
+
+/* ---- NEW: AI INSIGHTS TICKER ---- */
+.ai-ticker { background: rgba(124,111,255,0.06); border: 1px solid rgba(124,111,255,0.18); border-radius: var(--r); padding: 10px 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; overflow: hidden; }
+.ai-ticker-label { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; flex-shrink: 0; }
+.ai-ticker-text { font-size: 12px; color: var(--muted); }
+.ai-ticker-text span { color: var(--text); }
+
+/* ---- NEW: CREDIT JOURNEY CARD ---- */
+.journey-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.75rem; margin-bottom: 1.5rem; }
+.journey-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.journey-header h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+.journey-stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border-radius: 10px; overflow: hidden; }
+.journey-stage { background: var(--bg); padding: 1rem; text-align: center; position: relative; transition: background .2s; }
+.journey-stage.done { background: rgba(45,217,143,0.05); }
+.journey-stage.current { background: rgba(124,111,255,0.08); }
+.journey-stage.upcoming { background: var(--bg); opacity: 0.5; }
+.js-icon { font-size: 22px; margin-bottom: 6px; }
+.js-title { font-size: 12px; font-weight: 500; margin-bottom: 3px; }
+.js-sub { font-size: 11px; color: var(--muted); }
+.js-badge { font-size: 10px; padding: 1px 7px; border-radius: 999px; margin-top: 6px; display: inline-block; }
+.js-done { background: rgba(45,217,143,0.12); color: var(--green); }
+.js-active { background: rgba(124,111,255,0.12); color: var(--accent2); animation: blink 2s infinite; }
+.js-lock { background: var(--surface2); color: var(--muted); }
+
+/* ---- NEW: ACHIEVEMENTS ---- */
+.achievements-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.achievement { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 14px; display: flex; align-items: center; gap: 10px; transition: border-color .2s; cursor: default; }
+.achievement:hover { border-color: var(--amber); }
+.ach-icon { font-size: 20px; }
+.ach-name { font-size: 12px; font-weight: 500; }
+.ach-desc { font-size: 11px; color: var(--muted); }
+.ach-locked { opacity: 0.35; filter: grayscale(1); }
+
+/* ---- NEW: SMART NUDGE ---- */
+.nudge-card { background: linear-gradient(135deg, rgba(45,217,143,0.06), rgba(124,111,255,0.06)); border: 1px solid rgba(45,217,143,0.2); border-radius: var(--r); padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: flex-start; }
+.nudge-icon { font-size: 22px; flex-shrink: 0; }
+.nudge-title { font-size: 13px; font-weight: 600; color: var(--green); margin-bottom: 4px; }
+.nudge-body { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.nudge-action { margin-top: 8px; font-size: 12px; padding: 5px 14px; border-radius: 999px; background: rgba(45,217,143,0.12); color: var(--green); border: 1px solid rgba(45,217,143,0.25); cursor: pointer; font-family: var(--font-body); transition: all .2s; }
+.nudge-action:hover { background: rgba(45,217,143,0.22); }
+
+/* ---- NEW: COMPARISON TABLE ---- */
+.comparison-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 1.5rem; }
+.comp-header { background: var(--surface2); padding: 1rem 1.5rem; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 1rem; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.comp-row { padding: 12px 1.5rem; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border); align-items: center; font-size: 13px; }
+.comp-row:hover { background: rgba(255,255,255,0.02); }
+.comp-name { font-weight: 500; }
+.comp-check { color: var(--green); font-size: 15px; }
+.comp-cross { color: var(--red); font-size: 15px; }
+.comp-gigcredit { background: rgba(124,111,255,0.04); }
+.comp-badge-us { font-size: 10px; color: var(--accent2); margin-left: 6px; background: rgba(124,111,255,0.1); padding: 2px 6px; border-radius: 999px; }
+
+/* ---- NEW: RISK RADAR ---- */
+.radar-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+
+/* TOAST */
+#toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r); padding: 12px 20px; font-size: 13px; font-weight: 500; z-index: 200; transform: translateY(20px); opacity: 0; transition: all .3s; pointer-events: none; }
+#toast.show { transform: translateY(0); opacity: 1; }
+.toast-green { border-color: rgba(45,217,143,0.4); color: var(--green); }
+.toast-purple { border-color: rgba(124,111,255,0.4); color: var(--accent2); }
+.toast-amber { border-color: rgba(245,166,35,0.4); color: var(--amber); }
+
+/* SDG TAGS */
+.sdg-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+.sdg-tag { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1rem 1.5rem; min-width: 130px; text-align: center; }
+
+/* ---- AI CHAT WIDGET (NEW) ---- */
+.ai-chat-fab { position: fixed; bottom: 2rem; left: 2rem; z-index: 150; width: 52px; height: 52px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(124,111,255,0.4); transition: all .2s; }
+.ai-chat-fab:hover { transform: scale(1.08); }
+.ai-chat-panel { position: fixed; bottom: 6rem; left: 2rem; z-index: 150; width: 320px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r-lg); box-shadow: 0 20px 60px rgba(0,0,0,0.5); display: none; flex-direction: column; overflow: hidden; }
+.ai-chat-panel.open { display: flex; animation: fadeUp .3s ease; }
+.ai-chat-header { padding: 1rem; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.ai-chat-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
+.ai-chat-sub { font-size: 11px; color: var(--green); }
+.ai-chat-close { margin-left: auto; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; }
+.ai-chat-messages { padding: 1rem; display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+.ai-chat-input-row { padding: .75rem; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.ai-chat-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: var(--font-body); font-size: 13px; outline: none; }
+.ai-chat-send { padding: 8px 14px; background: var(--accent); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity .2s; }
+.ai-chat-send:hover { opacity: 0.85; }
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .portal-layout { grid-template-columns: 1fr; }
+  .sidebar { display: flex; flex-direction: row; overflow-x: auto; padding: .5rem; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+  .dash-top { grid-template-columns: 1fr 1fr; }
+  .ld-stats { grid-template-columns: 1fr 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .gauge-card { grid-template-columns: 1fr; }
+  .plan-grid { grid-template-columns: 1fr; }
+  .journey-stages { grid-template-columns: 1fr 1fr; }
+  .hide-sm { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="ambient-bg"></div>
+<div id="toast"></div>
+
+<!-- FLOATING AI CHAT -->
+<button class="ai-chat-fab" onclick="toggleAiChat()" title="Ask GigCredit AI">🤖</button>
+<div class="ai-chat-panel" id="aiChatPanel">
+  <div class="ai-chat-header">
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(124,111,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px">🧠</div>
+    <div><div class="ai-chat-title">GigCredit AI</div><div class="ai-chat-sub">● Online</div></div>
+    <button class="ai-chat-close" onclick="toggleAiChat()">×</button>
+  </div>
+  <div class="ai-chat-messages" id="aiChatMessages">
+    <div><div class="msg-label" style="color:var(--muted);font-size:10px">GigCredit AI</div><div class="chat-msg msg-bot" style="font-size:12px">Hi! I'm your AI credit advisor. Ask me anything — scores, plans, loans, tips. 💡</div></div>
+  </div>
+  <div class="ai-chat-input-row">
+    <input class="ai-chat-input" id="aiChatInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAiChat()">
+    <button class="ai-chat-send" onclick="sendAiChat()">→</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showPage('landing')">
+    <div class="logo-dot"></div>
+    Gig<span>Credit</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('landing')">Platform</button>
+    <button class="nav-link" onclick="showPage('onboard')">Get Started</button>
+    <button class="nav-link" onclick="showPage('worker')">Dashboard</button>
+    <button class="nav-link" onclick="showPage('lender')">Lenders</button>
+  </div>
+  <button class="nav-cta" onclick="showPage('onboard')">Check My Score →</button>
+</nav>
+
+<!-- ======================== LANDING ======================== -->
+<div class="page active" id="page-landing">
+  <div class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><div class="live-pulse"></div> AI-Powered Credit Readiness Platform</div>
+      <h1>Your income is real.<br><em>Your credit score</em> should be too.</h1>
+      <p>GigCredit continuously builds your loan eligibility from gig platform data, UPI transactions, and cash income — no salary slip, no CIBIL history required.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showPage('onboard')">Get My Readiness Score →</button>
+        <button class="btn-outline" onclick="showPage('worker')">See Demo Dashboard</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-num mv-green">73M+</div><div class="stat-label">Gig workers in India</div></div>
+        <div class="stat"><div class="stat-num" style="color:var(--red)">94%</div><div class="stat-label">Denied by traditional banks</div></div>
+        <div class="stat"><div class="stat-num mv-purple">2.1%</div><div class="stat-label">GigCredit default rate</div></div>
+        <div class="stat"><div class="stat-num mv-amber">4.2 hrs</div><div class="stat-label">Average approval time</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-inner">
+      <div class="ticker-item">🎉 Kumar Raj (Delhi) <span class="ti-badge">APPROVED ₹75K</span></div>
+      <div class="ticker-item">📈 Priya Selvam (Bangalore) score up to 83% <span class="ti-badge">+12 pts</span></div>
+      <div class="ticker-item">✅ Arjun Mehta (Mumbai) matched with 3 lenders <span class="ti-badge">NEW</span></div>
+      <div class="ticker-item">🏦 Stashfin disbursal: ₹1.1L this week <span class="ti-badge">LIVE</span></div>
+      <div class="ticker-item">🤖 AI detected predatory loan — saved user ₹4,200 <span class="ti-badge">ALERT</span></div>
+      <div class="ticker-item">🎉 Kumar Raj (Delhi) <span class="ti-badge">APPROVED ₹75K</span></div>
+      <div class="ticker-item">📈 Priya Selvam (Bangalore) score up to 83% <span class="ti-badge">+12 pts</span></div>
+      <div class="ticker-item">✅ Arjun Mehta (Mumbai) matched with 3 lenders <span class="ti-badge">NEW</span></div>
+      <div class="ticker-item">🏦 Stashfin disbursal: ₹1.1L this week <span class="ti-badge">LIVE</span></div>
+      <div class="ticker-item">🤖 AI detected predatory loan — saved user ₹4,200 <span class="ti-badge">ALERT</span></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="section-label">How it works</div>
+    <div class="section-title">From invisible to investable</div>
+    <div class="section-sub">No paperwork. No CIBIL. Just your real earnings — continuously analyzed by AI.</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01 / CONNECT</div>
+        <div class="step-icon">🔗</div>
+        <h3>Link Your Earnings</h3>
+        <p>Connect Swiggy, Ola, Amazon, or any gig platform. Or log cash income via voice in your language. We analyze all income signals.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02 / ANALYZE</div>
+        <div class="step-icon">🧠</div>
+        <h3>AI Builds Your Profile</h3>
+        <p>Our SHAP-based model assesses income regularity, UPI/cash ratio, platform tenure, and bill payment habits — updating continuously.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03 / MATCH</div>
+        <div class="step-icon">🏦</div>
+        <h3>Get Matched & Funded</h3>
+        <p>When your score hits the threshold, we surface your best-matched lenders with pre-filled applications. No branches, no middlemen.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VS COMPARISON -->
+  <div class="features-strip">
+    <div class="features-inner">
+      <div class="section-label">Why GigCredit</div>
+      <div class="section-title">Built different. Not just better.</div>
+      <div class="comparison-card" style="margin-top:2rem">
+        <div class="comp-header">
+          <span>Feature</span>
+          <span style="color:var(--accent2)">GigCredit <span class="comp-badge-us">Us</span></span>
+          <span>NBFC / Banks</span>
+          <span>Microfinance</span>
+        </div>
+        <div class="comp-row comp-gigcredit">
+          <div class="comp-name">Gig income recognition</div>
+          <div class="comp-check">✓ App + cash</div>
+          <div class="comp-cross">✗ Salary only</div>
+          <div class="comp-cross">✗ Partial</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name">CIBIL score required</div>
+          <div class="comp-check">✓ Not needed</div>
+          <div class="comp-cross">✗ Mandatory</div>
+          <div style="color:var(--muted);font-size:12px">Sometimes</div>
+        </div>
+        <div class="comp-row comp-gigcredit">
+          <div class="comp-name">Real-time score updates</div>
+          <div class="comp-check">✓ Continuous AI</div>
+          <div class="comp-cross">✗ Annual</div>
+          <div class="comp-cross">✗ No score</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name">Predatory loan protection</div>
+          <div class="comp-check">✓ Built-in</div>
+          <div class="comp-cross">✗ None</div>
+          <div class="comp-cross">✗ None</div>
+        </div>
+        <div class="comp-row comp-gigcredit">
+          <div class="comp-name">Regional language support</div>
+          <div class="comp-check">✓ 6 languages</div>
+          <div class="comp-cross">✗ English only</div>
+          <div style="color:var(--muted);font-size:12px">Limited</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-name">Approval time</div>
+          <div style="color:var(--green);font-weight:500">4.2 hours</div>
+          <div style="color:var(--muted);font-size:12px">5–14 days</div>
+          <div style="color:var(--muted);font-size:12px">1–3 days</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section">
+    <div class="section-label">Platform features</div>
+    <div class="section-title">Every tool you need. Nothing you don't.</div>
+    <div class="features-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="feat-card">
+        <div class="feat-icon fi-purple">🧠</div>
+        <h4>Adaptive AI Score</h4>
+        <p>SHAP-based model updates daily as your earnings grow. No fixed timeline — improves at your pace.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-green">🎙️</div>
+        <h4>Voice Income Logger</h4>
+        <p>Declare cash earnings in Hindi, Tamil, Telugu & 3 more languages. Converts speech to structured data.</p>
+        <div class="feat-new">6 Languages</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-amber">🚨</div>
+        <h4>Predatory Loan Detector</h4>
+        <p>Paste any loan offer. We calculate true APR and flag exploitative clauses before you sign.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-teal">📊</div>
+        <h4>What-if Simulator</h4>
+        <p>Explore how paying 2 more bills UPI or reducing cash ratio affects your approval timeline.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-pink">🏆</div>
+        <h4>Achievement Badges</h4>
+        <p>Earn milestones that build financial confidence and unlock access to higher loan tiers.</p>
+        <div class="feat-hot">New</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-purple">🗺️</div>
+        <h4>Adaptive Action Plan</h4>
+        <p>AI-generated weekly tasks that adapt to your income patterns, not a fixed 90-day program.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-green">💡</div>
+        <h4>Smart Nudges</h4>
+        <p>Context-aware micro-tips: "Pay electricity via UPI this week to add 4 pts to your score."</p>
+        <div class="feat-hot">New</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-amber">🔗</div>
+        <h4>Lender Matching API</h4>
+        <p>Real-time matching to 12+ lenders. Pre-filled applications. One tap to apply.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SDG -->
+  <div class="section" style="text-align:center;padding-bottom:6rem">
+    <div class="section-label">SDG Alignment</div>
+    <div class="section-title">Building for impact</div>
+    <div class="sdg-row">
+      <div class="sdg-tag"><div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:#FF6B35">SDG 1</div><div style="font-size:13px;color:var(--muted);margin-top:4px">No Poverty</div></div>
+      <div class="sdg-tag"><div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:#DDA63A">SDG 4</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Quality Education</div></div>
+      <div class="sdg-tag"><div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:#A21942">SDG 8</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Decent Work</div></div>
+      <div class="sdg-tag"><div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:#DD1367">SDG 10</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Reduced Inequalities</div></div>
+    </div>
+    <div style="margin-top:3rem">
+      <button class="btn-primary" style="font-size:16px;padding:15px 36px" onclick="showPage('onboard')">Start Your Readiness Journey →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== ONBOARDING ======================== -->
+<div class="page" id="page-onboard">
+  <div class="onboard-wrap">
+    <div class="onboard-progress">
+      <div class="op-dot done active" id="op1"></div>
+      <div class="op-dot" id="op2"></div>
+      <div class="op-dot" id="op3"></div>
+      <div class="op-dot" id="op4"></div>
+    </div>
+    <div class="onboard-step active" id="os1">
+      <div class="onboard-card">
+        <h2>Welcome to GigCredit</h2>
+        <p>We'll build your personal loan readiness profile — updated continuously. Takes 3 minutes. No credit history needed.</p>
+        <div style="margin-bottom:1.5rem">
+          <div class="form-group" style="margin-bottom:1rem"><label>Your name</label><input class="form-input" type="text" placeholder="Enter your name" id="ob-name" value="Ramesh Kumar"></div>
+          <div class="form-group" style="margin-bottom:1rem"><label>Mobile number</label><input class="form-input" type="tel" placeholder="+91 XXXXX XXXXX" value="+91 98765 43210"></div>
+          <div class="form-group"><label>City</label><select class="form-select"><option>Chennai</option><option>Mumbai</option><option>Delhi</option><option>Bangalore</option><option>Hyderabad</option></select></div>
+        </div>
+        <button class="next-btn" onclick="obNext(2)">Continue →</button>
+      </div>
+    </div>
+    <div class="onboard-step" id="os2">
+      <div class="onboard-card">
+        <h2>What kind of work do you do?</h2>
+        <p>Select your primary gig platform. This helps us match you with the right lenders.</p>
+        <div class="platform-grid">
+          <div class="plat-opt selected" onclick="selectPlat(this)"><div class="p-emoji">🛵</div><div class="p-name">Swiggy / Zomato</div></div>
+          <div class="plat-opt" onclick="selectPlat(this)"><div class="p-emoji">🚗</div><div class="p-name">Ola / Uber</div></div>
+          <div class="plat-opt" onclick="selectPlat(this)"><div class="p-emoji">📦</div><div class="p-name">Amazon / Flipkart</div></div>
+          <div class="plat-opt" onclick="selectPlat(this)"><div class="p-emoji">🔨</div><div class="p-name">Construction / Daily wage</div></div>
+          <div class="plat-opt" onclick="selectPlat(this)"><div class="p-emoji">💻</div><div class="p-name">Freelancer / Upwork</div></div>
+          <div class="plat-opt" onclick="selectPlat(this)"><div class="p-emoji">🏠</div><div class="p-name">Domestic / Household</div></div>
+        </div>
+        <button class="next-btn" onclick="obNext(3)">Continue →</button>
+      </div>
+    </div>
+    <div class="onboard-step" id="os3">
+      <div class="onboard-card">
+        <h2>How much do you earn monthly?</h2>
+        <p>Approximate is fine. Include all sources — app income, cash work, part-time jobs.</p>
+        <div style="margin-bottom:1.5rem">
+          <div class="form-group" style="margin-bottom:1rem"><label>Monthly earnings (₹)</label><input class="form-input" type="number" placeholder="e.g. 18000" value="18000" id="ob-income"></div>
+          <div class="form-group" style="margin-bottom:1rem">
+            <label>How much is paid in cash? (%)</label>
+            <input type="range" min="0" max="100" value="35" id="cash-pct" oninput="document.getElementById('cash-out').textContent=this.value+'%'">
+            <div style="text-align:right;font-size:13px;color:var(--accent);margin-top:4px" id="cash-out">35%</div>
+          </div>
+          <div class="form-group"><label>How long have you been doing this work?</label>
+            <select class="form-select"><option>Less than 6 months</option><option selected>6 months – 1 year</option><option>1 – 2 years</option><option>More than 2 years</option></select>
+          </div>
+        </div>
+        <button class="next-btn" onclick="obNext(4)">Calculate My Score →</button>
+      </div>
+    </div>
+    <div class="onboard-step" id="os4">
+      <div class="onboard-card" style="text-align:center">
+        <div style="font-size:48px;margin-bottom:1rem">🎉</div>
+        <h2>Your readiness score is ready!</h2>
+        <p style="margin-bottom:1.5rem">Based on your profile, here's where you stand today. Your score will update as your data grows.</p>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1.5rem">
+          <div style="font-family:var(--font-display);font-size:3rem;font-weight:800;color:var(--amber)">67%</div>
+          <div style="font-size:13px;color:var(--muted)">Loan Readiness Score</div>
+          <div style="margin-top:.75rem;font-size:13px;color:var(--text)">You're <strong style="color:var(--green)">2–3 smart actions</strong> away from qualifying for ₹50,000</div>
+        </div>
+        <div style="background:rgba(124,111,255,0.06);border:1px solid rgba(124,111,255,0.2);border-radius:var(--r);padding:1rem;margin-bottom:1.5rem;text-align:left">
+          <div style="font-size:12px;font-weight:600;color:var(--accent2);margin-bottom:.5rem">🎯 Top 3 gaps to fix:</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.8">1. Income regularity needs 2 more months above ₹15,000<br>2. Cash income ratio is 35% — move more to UPI<br>3. No bill payment history — pay 3 bills via UPI</div>
+        </div>
+        <button class="next-btn" onclick="showPage('worker')">Open My Dashboard →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== WORKER PORTAL ======================== -->
+<div class="page" id="page-worker">
+  <div class="portal-layout">
+    <div class="sidebar">
+      <div style="padding:0 12px 1rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(124,111,255,0.12);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--accent2);border:1px solid rgba(124,111,255,0.25)">RK</div>
+          <div><div style="font-size:13px;font-weight:500">Ramesh Kumar</div><div style="font-size:11px;color:var(--muted)">Swiggy Driver · Chennai</div></div>
+        </div>
+      </div>
+      <div class="sidebar-label">Overview</div>
+      <div class="sidebar-item active" onclick="showWorkerSection('dashboard',this)"><span class="s-icon">📊</span> Dashboard</div>
+      <div class="sidebar-item" onclick="showWorkerSection('journey',this)"><span class="s-icon">🗺️</span> Credit Journey</div>
+      <div class="sidebar-item" onclick="showWorkerSection('actionplan',this)"><span class="s-icon">🎯</span> Action Plan</div>
+      <div class="sidebar-item" onclick="showWorkerSection('progress',this)"><span class="s-icon">📈</span> Progress</div>
+      <div class="sidebar-item" onclick="showWorkerSection('achievements',this)"><span class="s-icon">🏆</span> Achievements</div>
+      <div class="sidebar-label">Tools</div>
+      <div class="sidebar-item" onclick="showWorkerSection('voice',this)"><span class="s-icon">🎙️</span> Voice Assistant</div>
+      <div class="sidebar-item" onclick="showWorkerSection('income',this)"><span class="s-icon">💰</span> Income Log</div>
+      <div class="sidebar-item" onclick="showWorkerSection('simulator',this)"><span class="s-icon">🔮</span> Simulator</div>
+      <div class="sidebar-label">Loans</div>
+      <div class="sidebar-item" onclick="showWorkerSection('lenders',this)"><span class="s-icon">🏦</span> Matched Lenders</div>
+      <div class="sidebar-item" onclick="showWorkerSection('detector',this)"><span class="s-icon">🚨</span> Loan Detector</div>
+    </div>
+
+    <div class="portal-content">
+
+      <!-- DASHBOARD -->
+      <div id="ws-dashboard">
+        <!-- SMART NUDGE -->
+        <div class="nudge-card">
+          <div class="nudge-icon">💡</div>
+          <div>
+            <div class="nudge-title">AI Nudge — Do this today</div>
+            <div class="nudge-body">Pay your electricity bill via UPI this week. It'll add an estimated <strong style="color:var(--green)">+4 pts</strong> to your score and complete your bill history milestone.</div>
+            <button class="nudge-action" onclick="showToast('Reminder set! ✓','green')">Set Reminder</button>
+          </div>
+        </div>
+
+        <div class="dash-header">
+          <h2>Good morning, Ramesh 👋</h2>
+          <p>Your readiness score improved by 4 points this week. Keep going — you're continuously building!</p>
+        </div>
+        <div class="dash-top">
+          <div class="metric"><div class="metric-label">Readiness Score</div><div class="metric-val mv-amber">67%</div><div class="metric-sub mv-green">▲ 4pts this week</div></div>
+          <div class="metric"><div class="metric-label">Monthly Income</div><div class="metric-val">₹18,400</div><div class="metric-sub" style="color:var(--muted)">Last 30 days</div></div>
+          <div class="metric"><div class="metric-label">Days Active</div><div class="metric-val mv-purple">34</div><div class="metric-sub" style="color:var(--muted)">Continuous tracking</div></div>
+          <div class="metric"><div class="metric-label">Matched Lenders</div><div class="metric-val mv-green">3</div><div class="metric-sub" style="color:var(--muted)">Ready to apply</div></div>
+        </div>
+
+        <div class="gauge-card">
+          <div class="gauge-wrap">
+            <canvas id="gaugeCanvas" width="160" height="160"></canvas>
+            <div class="gauge-center"><div class="gauge-pct">67%</div><div class="gauge-label">Ready</div></div>
+          </div>
+          <div class="gauge-info">
+            <h3>Loan Readiness — ₹50,000 target</h3>
+            <p>You're 67% of the way to qualifying. Your score updates daily as you earn and pay bills. No fixed deadline — keep improving.</p>
+            <div class="gauge-bar-wrap">
+              <div class="gauge-bar-label"><span>Income regularity</span><span style="color:var(--green)">82%</span></div>
+              <div class="gauge-bar"><div class="gauge-bar-fill" style="width:82%;background:var(--green)"></div></div>
+            </div>
+            <div class="gauge-bar-wrap">
+              <div class="gauge-bar-label"><span>UPI vs cash ratio</span><span style="color:var(--amber)">54%</span></div>
+              <div class="gauge-bar"><div class="gauge-bar-fill" style="width:54%;background:var(--amber)"></div></div>
+            </div>
+            <div class="gauge-bar-wrap">
+              <div class="gauge-bar-label"><span>Platform tenure</span><span style="color:var(--accent2)">71%</span></div>
+              <div class="gauge-bar"><div class="gauge-bar-fill" style="width:71%;background:var(--accent2)"></div></div>
+            </div>
+            <div class="gauge-bar-wrap">
+              <div class="gauge-bar-label"><span>Bill payment history</span><span style="color:var(--red)">35%</span></div>
+              <div class="gauge-bar"><div class="gauge-bar-fill" style="width:35%;background:var(--red)"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-title"><div class="content-title-bar"></div>This week's actions</div>
+        <div class="plan-grid">
+          <div class="plan-card"><div class="plan-card-header"><span class="plan-week">This week</span><span class="plan-status ps-active">In progress</span></div><h4>Pay 3 bills via UPI</h4><p>Pay electricity, mobile, and any subscription via UPI to build a bill payment record.</p><div class="plan-progress"><div class="gauge-bar-label" style="font-size:11px"><span>1 of 3 done</span><span>33%</span></div><div class="pp-bar"><div class="pp-fill" style="width:33%"></div></div></div></div>
+          <div class="plan-card"><div class="plan-card-header"><span class="plan-week">This week</span><span class="plan-status ps-active">In progress</span></div><h4>Log all cash income</h4><p>Use the voice logger to declare any cash payments this week. Builds your cash credibility score.</p><div class="plan-progress"><div class="gauge-bar-label" style="font-size:11px"><span>2 of 4 done</span><span>50%</span></div><div class="pp-bar"><div class="pp-fill" style="width:50%"></div></div></div></div>
+        </div>
+      </div>
+
+      <!-- CREDIT JOURNEY (NEW) -->
+      <div id="ws-journey" style="display:none">
+        <div class="dash-header"><h2>Your Credit Journey</h2><p>An adaptive, stage-based path to your first loan — and beyond.</p></div>
+        <div class="journey-card">
+          <div class="journey-header">
+            <h3>🗺️ Continuous Credit Path</h3>
+            <span style="font-size:12px;color:var(--muted)">Stage 2 of 4 active</span>
+          </div>
+          <div class="journey-stages">
+            <div class="journey-stage done">
+              <div class="js-icon">📡</div>
+              <div class="js-title">Signal Building</div>
+              <div class="js-sub">Income baseline + UPI history</div>
+              <div class="js-badge js-done">✓ Complete</div>
+            </div>
+            <div class="journey-stage current">
+              <div class="js-icon">🏗️</div>
+              <div class="js-title">Trust Building</div>
+              <div class="js-sub">Bill history + cash declaration</div>
+              <div class="js-badge js-active">● Active</div>
+            </div>
+            <div class="journey-stage upcoming">
+              <div class="js-icon">🎯</div>
+              <div class="js-title">Loan Ready</div>
+              <div class="js-sub">80%+ score → apply</div>
+              <div class="js-badge js-lock">🔒 Locked</div>
+            </div>
+            <div class="journey-stage upcoming">
+              <div class="js-icon">🌱</div>
+              <div class="js-title">Credit Graduate</div>
+              <div class="js-sub">Repaid loan → CIBIL entry</div>
+              <div class="js-badge js-lock">🔒 Locked</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:rgba(45,217,143,0.06);border:1px solid rgba(45,217,143,0.18);border-radius:var(--r);padding:1.25rem">
+          <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:.5rem">📍 You are here — Stage 2: Trust Building</div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7">You've established your income signal. Now your AI is learning your payment behavior. Pay 2 more bills via UPI and log 2 more cash entries to unlock Stage 3 — Loan Ready. Estimated: 3 weeks at current pace.</p>
+        </div>
+        <div style="margin-top:1.5rem">
+          <div class="content-title"><div class="content-title-bar"></div>What unlocks at Stage 3</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div style="font-size:13px"><span style="color:var(--green);margin-right:6px">→</span>Full lender matching activated</div>
+            <div style="font-size:13px"><span style="color:var(--green);margin-right:6px">→</span>Pre-filled loan applications</div>
+            <div style="font-size:13px"><span style="color:var(--green);margin-right:6px">→</span>Access to ₹25K–₹1L range</div>
+            <div style="font-size:13px"><span style="color:var(--green);margin-right:6px">→</span>Credit Graduate track begins</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTION PLAN -->
+      <div id="ws-actionplan" style="display:none">
+        <div class="dash-header"><h2>Adaptive Action Plan</h2><p>AI-generated from your SHAP gap analysis. Adapts to your income patterns — updated every Sunday.</p></div>
+        <div class="plan-grid">
+          <div class="plan-card"><div class="plan-card-header"><span class="plan-week">Weeks 1–3</span><span class="plan-status ps-done">✓ Done</span></div><h4>Establish income baseline</h4><p>Ensure UPI credits exceed ₹15,000 for 3 consecutive weeks. Log all cash income via voice assistant.</p><div class="plan-progress"><div class="gauge-bar-label" style="font-size:11px"><span>Complete</span><span>100%</span></div><div class="pp-bar"><div class="pp-fill" style="width:100%;background:var(--green)"></div></div></div></div>
+          <div class="plan-card"><div class="plan-card-header"><span class="plan-week">Weeks 4–6</span><span class="plan-status ps-active">Active now</span></div><h4>Build bill payment history</h4><p>Pay at least 3 bills per month via UPI. Mobile recharge, electricity, or any subscription counts.</p><div class="plan-progress"><div class="gauge-bar-label" style="font-size:11px"><span>1 of 3</span><span>33%</span></div><div class="pp-bar"><div class="pp-fill" style="width:33%"></div></div></div></div>
+          <div class="plan-card"><div class="plan-card-header"><span class="plan-week">Weeks 7–9</span><span class="plan-status ps-pending">Upcoming</span></div><h4>Reduce cash withdrawal ratio</h4><p>Target: keep cash withdrawals below 25% of total income. Move more transactions to UPI.</p><div class="plan-progress"><div class="gauge-bar-label" style="font-size:11px"><span>Starts Week 7</span><span>0%</span></div><div class="pp-bar"><div class="pp-fill" style="width:0%"></div></div></div></div>
+          <div class="plan-card"><div class="plan-card-header"><span class="plan-week">Ongoing</span><span class="plan-status ps-pending">Upcoming</span></div><h4>Maintain & grow score</h4><p>After first loan, continue logging income to build CIBIL entry. Score keeps improving for higher loan tiers.</p><div class="plan-progress"><div class="gauge-bar-label" style="font-size:11px"><span>Starts at 80%+</span><span>0%</span></div><div class="pp-bar"><div class="pp-fill" style="width:0%"></div></div></div></div>
+        </div>
+        <div style="background:rgba(124,111,255,0.06);border:1px solid rgba(124,111,255,0.18);border-radius:var(--r);padding:1.25rem;margin-top:1rem">
+          <div style="font-size:12px;font-weight:600;color:var(--accent2);margin-bottom:.5rem">🤖 AI Insight</div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7">"Ramesh, your biggest opportunity is bill payment history — it's 28% of your readiness score but currently at 35%. Paying just 3 bills via UPI for 6 weeks will add an estimated 12 points, moving you from 67% to 79%. That alone gets you into lender consideration range."</p>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div id="ws-progress" style="display:none">
+        <div class="dash-header"><h2>Progress Tracker</h2><p>Your journey so far — score grows continuously as your data builds.</p></div>
+        <div class="mini-chart">
+          <h4>Readiness score over time</h4>
+          <canvas id="progressChart" height="120"></canvas>
+        </div>
+        <div class="content-title" style="margin-top:1.5rem"><div class="content-title-bar"></div>Milestone timeline</div>
+        <div class="progress-timeline">
+          <div class="pt-item"><div class="pt-dot dot-done">✓</div><div class="pt-content"><h4>Profile created & baseline established</h4><p>Income baseline of ₹17,200/month confirmed. 3 months of UPI history analyzed.</p><div class="pt-date">Day 1 — Dec 14, 2025</div></div></div>
+          <div class="pt-item"><div class="pt-dot dot-done">✓</div><div class="pt-content"><h4>First score milestone — crossed 50%</h4><p>Score reached 52% after consistent ₹18,000+ monthly income for 3 weeks.</p><div class="pt-date">Day 21 — Jan 4, 2026</div></div></div>
+          <div class="pt-item"><div class="pt-dot dot-done">✓</div><div class="pt-content"><h4>Voice cash logging habit established</h4><p>Logged 14 cash income entries. Cash credibility score now 0.6/1.0.</p><div class="pt-date">Day 28 — Jan 11, 2026</div></div></div>
+          <div class="pt-item"><div class="pt-dot dot-active">●</div><div class="pt-content"><h4>Bill payment history — in progress</h4><p>1 of 3 monthly bills paid via UPI. 2 more needed by end of this week.</p><div class="pt-date">Day 34 — Today</div></div></div>
+          <div class="pt-item"><div class="pt-dot dot-pending">○</div><div class="pt-content"><h4>Target: cross 80% readiness</h4><p>Projected to hit 80% in ~4 weeks at current pace.</p><div class="pt-date">~Day 60</div></div></div>
+          <div class="pt-item"><div class="pt-dot dot-pending">○</div><div class="pt-content"><h4>First loan application</h4><p>Full profile complete. Lender matched. Application pre-filled and ready.</p><div class="pt-date">~Day 65–80</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACHIEVEMENTS (NEW) -->
+      <div id="ws-achievements" style="display:none">
+        <div class="dash-header"><h2>Achievements</h2><p>Milestones that track your financial growth and unlock new tiers.</p></div>
+        <div class="content-title"><div class="content-title-bar"></div>Earned badges</div>
+        <div class="achievements-row">
+          <div class="achievement">
+            <div class="ach-icon">🚀</div>
+            <div><div class="ach-name">Profile Pioneer</div><div class="ach-desc">Created readiness profile</div></div>
+          </div>
+          <div class="achievement">
+            <div class="ach-icon">💰</div>
+            <div><div class="ach-name">Income Verified</div><div class="ach-desc">3 months UPI history</div></div>
+          </div>
+          <div class="achievement">
+            <div class="ach-icon">🎙️</div>
+            <div><div class="ach-name">Voice Logger</div><div class="ach-desc">10+ cash entries logged</div></div>
+          </div>
+          <div class="achievement">
+            <div class="ach-icon">📈</div>
+            <div><div class="ach-name">Score Climber</div><div class="ach-desc">Crossed 50% readiness</div></div>
+          </div>
+          <div class="achievement">
+            <div class="ach-icon">🛡️</div>
+            <div><div class="ach-name">Loan Shield</div><div class="ach-desc">Detected predatory offer</div></div>
+          </div>
+        </div>
+        <div class="content-title" style="margin-top:1.5rem"><div class="content-title-bar"></div>Locked badges</div>
+        <div class="achievements-row">
+          <div class="achievement ach-locked">
+            <div class="ach-icon">🏦</div>
+            <div><div class="ach-name">First Approval</div><div class="ach-desc">Get a loan approved</div></div>
+          </div>
+          <div class="achievement ach-locked">
+            <div class="ach-icon">⚡</div>
+            <div><div class="ach-name">Speed Runner</div><div class="ach-desc">Score 80% in under 8 weeks</div></div>
+          </div>
+          <div class="achievement ach-locked">
+            <div class="ach-icon">🌱</div>
+            <div><div class="ach-name">Credit Graduate</div><div class="ach-desc">First loan repaid on time</div></div>
+          </div>
+          <div class="achievement ach-locked">
+            <div class="ach-icon">💎</div>
+            <div><div class="ach-name">Diamond Borrower</div><div class="ach-desc">3 loans, 0 defaults</div></div>
+          </div>
+          <div class="achievement ach-locked">
+            <div class="ach-icon">🎯</div>
+            <div><div class="ach-name">Score Max</div><div class="ach-desc">Hit 95%+ readiness</div></div>
+          </div>
+        </div>
+        <div style="background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);border-radius:var(--r);padding:1.25rem;margin-top:1rem">
+          <div style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:.5rem">🎯 Next badge to unlock</div>
+          <p style="font-size:13px;color:var(--muted)">Pay 3 bills via UPI this month to unlock the <strong style="color:var(--text)">Bill Buddy</strong> badge — and add 12 pts to your score at the same time.</p>
+        </div>
+      </div>
+
+      <!-- VOICE ASSISTANT -->
+      <div id="ws-voice" style="display:none">
+        <div class="dash-header"><h2>Voice Assistant</h2><p>Ask anything about your finances in your language.</p></div>
+        <div class="voice-card">
+          <div class="voice-top">
+            <div class="voice-icon">🗣️</div>
+            <div><h3>GigCredit Voice Assistant</h3><p>Powered by Whisper STT + Sarvam AI · 6 Indian languages</p></div>
+          </div>
+          <div class="lang-select">
+            <button class="lang-btn active" onclick="selectLang(this,'hi')">हिंदी</button>
+            <button class="lang-btn" onclick="selectLang(this,'ta')">தமிழ்</button>
+            <button class="lang-btn" onclick="selectLang(this,'te')">తెలుగు</button>
+            <button class="lang-btn" onclick="selectLang(this,'kn')">ಕನ್ನಡ</button>
+            <button class="lang-btn" onclick="selectLang(this,'bn')">বাংলা</button>
+            <button class="lang-btn" onclick="selectLang(this,'mr')">मराठी</button>
+          </div>
+          <div class="quick-asks">
+            <button class="qa-btn" onclick="quickAsk('Mera score kya hai?')">Score kya hai?</button>
+            <button class="qa-btn" onclick="quickAsk('Is mahine kitna kamaya?')">Is mahine income?</button>
+            <button class="qa-btn" onclick="quickAsk('Loan ke liye kya chahiye?')">Loan tips</button>
+            <button class="qa-btn" onclick="quickAsk('Score kab badhega?')">Score kab?</button>
+          </div>
+          <div class="voice-chat" id="voiceChat">
+            <div><div class="msg-label">GigCredit Assistant</div><div class="chat-msg msg-bot">Namaste Ramesh! Main aapki financial journey mein madad karne ke liye hoon. Aap kuch bhi pooch sakte hain — score, income, loan, sab kuch. 🙏</div></div>
+          </div>
+          <div class="voice-input-row">
+            <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎤</button>
+            <input class="voice-text-input" type="text" id="voiceInput" placeholder="Poochein... ya type karein" onkeydown="if(event.key==='Enter')sendVoiceMsg()">
+            <button class="voice-send" onclick="sendVoiceMsg()">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INCOME LOG -->
+      <div id="ws-income" style="display:none">
+        <div class="dash-header"><h2>Income Log</h2><p>Track all your earnings — UPI and cash — to build your credit profile.</p></div>
+        <div class="cash-form">
+          <div class="form-row">
+            <div class="form-group"><label>Amount (₹)</label><input class="form-input" type="number" placeholder="e.g. 850" id="cash-amt"></div>
+            <div class="form-group"><label>Type</label><select class="form-select"><option>Cash</option><option>UPI</option><option>Bank transfer</option></select></div>
+            <div class="form-group"><label>Source</label><select class="form-select"><option>Swiggy delivery</option><option>Zomato delivery</option><option>Ola ride</option><option>Other gig</option><option>Part-time</option></select></div>
+          </div>
+          <button class="btn-primary" onclick="logCash()" style="font-size:13px;padding:9px 20px">Log Income →</button>
+        </div>
+        <div class="income-list">
+          <div class="income-row header"><span>Date</span><span>Amount</span><span>Source</span><span>Type</span><span>Weight</span></div>
+          <div class="income-row"><span style="font-family:var(--font-mono);font-size:12px">Jan 17</span><span style="font-weight:500">₹1,240</span><span style="font-size:12px;color:var(--muted)">Swiggy</span><span><span class="badge-upi">UPI</span></span><span style="font-size:12px;color:var(--green)">1.0×</span></div>
+          <div class="income-row"><span style="font-family:var(--font-mono);font-size:12px">Jan 16</span><span style="font-weight:500">₹850</span><span style="font-size:12px;color:var(--muted)">Cash tip</span><span><span class="badge-cash">Cash</span></span><span style="font-size:12px;color:var(--amber)">0.2×</span></div>
+          <div class="income-row"><span style="font-family:var(--font-mono);font-size:12px">Jan 15</span><span style="font-weight:500">₹2,100</span><span style="font-size:12px;color:var(--muted)">Swiggy</span><span><span class="badge-upi">UPI</span></span><span style="font-size:12px;color:var(--green)">1.0×</span></div>
+          <div class="income-row"><span style="font-family:var(--font-mono);font-size:12px">Jan 14</span><span style="font-weight:500">₹650</span><span style="font-size:12px;color:var(--muted)">Extra delivery</span><span><span class="badge-cash">Cash</span></span><span style="font-size:12px;color:var(--amber)">0.2×</span></div>
+          <div class="income-row"><span style="font-family:var(--font-mono);font-size:12px">Jan 13</span><span style="font-weight:500">₹1,800</span><span style="font-size:12px;color:var(--muted)">Swiggy</span><span><span class="badge-upi">UPI</span></span><span style="font-size:12px;color:var(--green)">1.0×</span></div>
+        </div>
+      </div>
+
+      <!-- SIMULATOR -->
+      <div id="ws-simulator" style="display:none">
+        <div class="dash-header"><h2>Score Simulator</h2><p>See exactly how your actions affect your readiness score before you commit.</p></div>
+        <div class="sim-card">
+          <h3>🔮 What-If Score Simulator</h3>
+          <div class="slider-row">
+            <div class="slider-label"><span>Monthly income (₹)</span><span class="slider-val" id="sv-income">₹18,000</span></div>
+            <input type="range" min="5000" max="60000" value="18000" id="sl-income" oninput="updateSim()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Months of history</span><span class="slider-val" id="sv-months">3 months</span></div>
+            <input type="range" min="1" max="12" value="3" id="sl-months" oninput="updateSim()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Cash income ratio</span><span class="slider-val" id="sv-cash">35%</span></div>
+            <input type="range" min="0" max="100" value="35" id="sl-cash" oninput="updateSim()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Bills paid via UPI (monthly)</span><span class="slider-val" id="sv-bills">1 bill</span></div>
+            <input type="range" min="0" max="10" value="1" id="sl-bills" oninput="updateSim()">
+          </div>
+          <div class="sim-result">
+            <div><div class="sr-val mv-amber" id="sim-score">67%</div><div class="sr-label">Predicted Score</div></div>
+            <div><div class="sr-val mv-green" id="sim-delta">0pts</div><div class="sr-label">vs. today</div></div>
+            <div><div class="sr-val mv-purple" id="sim-weeks">~56 days</div><div class="sr-label">To 80% approval</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MATCHED LENDERS -->
+      <div id="ws-lenders" style="display:none">
+        <div class="dash-header"><h2>Matched Lenders</h2><p>These lenders accept gig worker profiles at your current score. Match quality updates as your score improves.</p></div>
+        <div class="lender-list">
+          <div class="lender-card">
+            <div>
+              <div class="lender-name">Stashfin</div>
+              <div class="lender-meta">₹20,000–₹75,000 · 29% APR · No salary slip</div>
+              <div class="lender-tags"><span class="ltag">Gig-friendly</span><span class="ltag">UPI history</span><span class="ltag">No CIBIL</span></div>
+            </div>
+            <div class="lender-match">
+              <div class="lmatch-pct">91%</div>
+              <div class="lmatch-label">match</div>
+              <button class="apply-btn" onclick="showToast('Application pre-filled → Stashfin', 'green')">Apply Now</button>
+            </div>
+          </div>
+          <div class="lender-card">
+            <div>
+              <div class="lender-name">KreditBee</div>
+              <div class="lender-meta">₹10,000–₹50,000 · 29.95% APR · Instant disbursal</div>
+              <div class="lender-tags"><span class="ltag">Fast approval</span><span class="ltag">Low score OK</span><span class="ltag">Digital</span></div>
+            </div>
+            <div class="lender-match">
+              <div class="lmatch-pct">84%</div>
+              <div class="lmatch-label">match</div>
+              <button class="apply-btn" onclick="showToast('Application pre-filled → KreditBee', 'green')">Apply Now</button>
+            </div>
+          </div>
+          <div class="lender-card" style="opacity:0.6">
+            <div>
+              <div class="lender-name">MoneyTap</div>
+              <div class="lender-meta">₹25,000–₹1L · 24% APR · Requires 75%+ score</div>
+              <div class="lender-tags"><span class="ltag">Lower rate</span><span class="ltag">Needs 75%+</span></div>
+            </div>
+            <div class="lender-match">
+              <div class="lmatch-pct" style="color:var(--amber)">67%</div>
+              <div class="lmatch-label">8 pts away</div>
+              <button class="apply-btn" style="background:var(--surface2);color:var(--muted)" onclick="showToast('Improve score by 8 pts to unlock', 'amber')">Unlock at 75%</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOAN DETECTOR -->
+      <div id="ws-detector" style="display:none">
+        <div class="dash-header"><h2>Predatory Loan Detector</h2><p>Paste any loan offer. We'll tell you if it's safe before you sign.</p></div>
+        <div class="cash-form">
+          <div class="form-group" style="margin-bottom:1rem"><label>Paste loan offer terms</label><textarea class="form-input" rows="5" id="loan-terms" placeholder="e.g. Borrow ₹10,000, repay ₹1,400 for 10 weeks. Processing fee 3%. Late payment: ₹200/day..."></textarea></div>
+          <button class="btn-primary" onclick="analyzeLoan()" style="font-size:13px;padding:9px 20px">Analyze This Offer →</button>
+        </div>
+        <div id="loan-result" style="display:none;margin-top:1rem">
+          <div style="background:rgba(255,91,91,0.06);border:1px solid rgba(255,91,91,0.25);border-radius:var(--r);padding:1.25rem">
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem"><span style="font-size:18px">🚨</span><span style="font-weight:600;color:var(--red)">Warning — Potentially Predatory</span></div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.75">True APR: <strong style="color:var(--red)">~182%</strong> (disclosed as flat weekly rate)<br>This loan costs approximately <strong style="color:var(--red)">₹4,000 extra</strong> to borrow ₹10,000 for 10 weeks.<br>The ₹200/day late fee compounds to ₹6,000/month if you miss a payment.<br><br><strong style="color:var(--text)">Safer alternatives:</strong> Stashfin (29% APR) or KreditBee (29.95% APR) offer the same amount at 6× lower cost.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================== LENDER DASHBOARD ======================== -->
+<div class="page" id="page-lender">
+  <div class="portal-layout">
+    <div class="sidebar">
+      <div style="padding:0 12px 1rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+        <div style="font-size:14px;font-weight:500">Stashfin</div>
+        <div style="font-size:11px;color:var(--muted)">Lender Portal · Admin</div>
+      </div>
+      <div class="sidebar-item active" onclick="showLenderSection('overview',this)"><span class="s-icon">📊</span> Overview</div>
+      <div class="sidebar-item" onclick="showLenderSection('applicants',this)"><span class="s-icon">👥</span> Applicants</div>
+      <div class="sidebar-item" onclick="showLenderSection('analytics',this)"><span class="s-icon">📈</span> Analytics</div>
+    </div>
+    <div class="portal-content">
+      <div id="ls-overview">
+        <div class="dash-header"><h2>Lender Dashboard</h2><p>GigCredit-qualified applicants — continuously scored and ready to evaluate.</p></div>
+        <div class="ld-stats">
+          <div class="metric"><div class="metric-label">New applicants</div><div class="metric-val mv-purple">24</div><div class="metric-sub mv-green">▲ 8 this week</div></div>
+          <div class="metric"><div class="metric-label">Avg readiness score</div><div class="metric-val mv-green">74%</div><div class="metric-sub" style="color:var(--muted)">vs 0% pre-GigCredit</div></div>
+          <div class="metric"><div class="metric-label">Approval rate</div><div class="metric-val mv-amber">68%</div><div class="metric-sub" style="color:var(--muted)">vs 12% industry avg</div></div>
+          <div class="metric"><div class="metric-label">Avg loan amount</div><div class="metric-val">₹48K</div><div class="metric-sub" style="color:var(--muted)">First-time borrowers</div></div>
+        </div>
+        <div class="content-title"><div class="content-title-bar"></div>Recent applicants</div>
+        <div class="applicant-table">
+          <div class="at-header"><span>Applicant</span><span>Score</span><span>Income</span><span class="hide-sm">Platform</span><span class="hide-sm">Days Active</span><span>Action</span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar">RK</div><div><div class="worker-name">Ramesh Kumar</div><div class="worker-platform">Swiggy · Chennai</div></div></div><span><span class="score-pill sp-mid">67%</span></span><span>₹18,400</span><span class="hide-sm" style="color:var(--muted);font-size:12px">Swiggy</span><span class="hide-sm" style="color:var(--muted);font-size:12px">34 days</span><span><button class="action-badge ab-review">Review</button></span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar" style="color:#2DD98F;background:rgba(45,217,143,0.1)">PS</div><div><div class="worker-name">Priya Selvam</div><div class="worker-platform">Ola · Bangalore</div></div></div><span><span class="score-pill sp-high">83%</span></span><span>₹24,100</span><span class="hide-sm" style="color:var(--muted);font-size:12px">Ola</span><span class="hide-sm" style="color:var(--muted);font-size:12px">78 days</span><span><button class="action-badge ab-approve" onclick="showToast('Approved Priya Selvam','green')">Approve</button></span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar" style="color:#F5A623;background:rgba(245,166,35,0.1)">AM</div><div><div class="worker-name">Arjun Mehta</div><div class="worker-platform">Freelancer · Mumbai</div></div></div><span><span class="score-pill sp-high">79%</span></span><span>₹31,500</span><span class="hide-sm" style="color:var(--muted);font-size:12px">Freelance</span><span class="hide-sm" style="color:var(--muted);font-size:12px">62 days</span><span><button class="action-badge ab-approve" onclick="showToast('Approved Arjun Mehta','green')">Approve</button></span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar" style="color:#FF5B5B;background:rgba(255,91,91,0.1)">LB</div><div><div class="worker-name">Lakshmi Bai</div><div class="worker-platform">Domestic · Hyderabad</div></div></div><span><span class="score-pill sp-low">51%</span></span><span>₹9,800</span><span class="hide-sm" style="color:var(--muted);font-size:12px">Domestic</span><span class="hide-sm" style="color:var(--muted);font-size:12px">12 days</span><span><button class="action-badge ab-watch">Watch</button></span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar" style="color:#00C9A7;background:rgba(0,201,167,0.1)">KR</div><div><div class="worker-name">Kumar Raj</div><div class="worker-platform">Amazon · Delhi</div></div></div><span><span class="score-pill sp-high">88%</span></span><span>₹28,700</span><span class="hide-sm" style="color:var(--muted);font-size:12px">Amazon</span><span class="hide-sm" style="color:var(--muted);font-size:12px">85 days</span><span><button class="action-badge ab-approve" onclick="showToast('Approved Kumar Raj','green')">Approve</button></span></div>
+        </div>
+      </div>
+      <div id="ls-applicants" style="display:none">
+        <div class="dash-header"><h2>All Applicants</h2><p>Filter and review GigCredit-qualified borrowers.</p></div>
+        <div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap">
+          <button onclick="showToast('Showing all applicants','purple')" style="font-size:12px;padding:6px 14px;border-radius:999px;background:var(--accent);color:#fff;border:none;cursor:pointer">All (24)</button>
+          <button onclick="showToast('Showing high readiness','purple')" style="font-size:12px;padding:6px 14px;border-radius:999px;background:var(--surface2);color:var(--muted);border:1px solid var(--border);cursor:pointer">High readiness (11)</button>
+          <button onclick="showToast('Showing mid readiness','purple')" style="font-size:12px;padding:6px 14px;border-radius:999px;background:var(--surface2);color:var(--muted);border:1px solid var(--border);cursor:pointer">Mid readiness (9)</button>
+          <button onclick="showToast('Showing needs time','purple')" style="font-size:12px;padding:6px 14px;border-radius:999px;background:var(--surface2);color:var(--muted);border:1px solid var(--border);cursor:pointer">Needs more time (4)</button>
+        </div>
+        <div class="applicant-table">
+          <div class="at-header"><span>Applicant</span><span>Score</span><span>Income</span><span class="hide-sm">Platform</span><span class="hide-sm">Days Active</span><span>Action</span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar" style="color:#2DD98F;background:rgba(45,217,143,0.1)">KR</div><div><div class="worker-name">Kumar Raj</div><div class="worker-platform">Amazon · Delhi</div></div></div><span><span class="score-pill sp-high">88%</span></span><span>₹28,700</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">Amazon</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">85 days</span><span><button class="action-badge ab-approve" onclick="showToast('Approved!','green')">Approve</button></span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar" style="color:#2DD98F;background:rgba(45,217,143,0.1)">PS</div><div><div class="worker-name">Priya Selvam</div><div class="worker-platform">Ola · Bangalore</div></div></div><span><span class="score-pill sp-high">83%</span></span><span>₹24,100</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">Ola</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">78 days</span><span><button class="action-badge ab-approve" onclick="showToast('Approved!','green')">Approve</button></span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar" style="color:#F5A623;background:rgba(245,166,35,0.1)">AM</div><div><div class="worker-name">Arjun Mehta</div><div class="worker-platform">Freelancer · Mumbai</div></div></div><span><span class="score-pill sp-high">79%</span></span><span>₹31,500</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">Freelance</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">62 days</span><span><button class="action-badge ab-approve" onclick="showToast('Approved!','green')">Approve</button></span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar">RK</div><div><div class="worker-name">Ramesh Kumar</div><div class="worker-platform">Swiggy · Chennai</div></div></div><span><span class="score-pill sp-mid">67%</span></span><span>₹18,400</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">Swiggy</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">34 days</span><span><button class="action-badge ab-review">Review</button></span></div>
+          <div class="at-row"><div class="worker-info"><div class="worker-avatar" style="color:#FF5B5B;background:rgba(255,91,91,0.1)">LB</div><div><div class="worker-name">Lakshmi Bai</div><div class="worker-platform">Domestic · Hyderabad</div></div></div><span><span class="score-pill sp-low">51%</span></span><span>₹9,800</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">Domestic</span><span class="hide-sm" style="font-size:12px;color:var(--muted)">12 days</span><span><button class="action-badge ab-watch">Watch</button></span></div>
+        </div>
+      </div>
+      <div id="ls-analytics" style="display:none">
+        <div class="dash-header"><h2>Analytics</h2><p>Performance metrics for GigCredit applicant pipeline.</p></div>
+        <div class="ld-stats">
+          <div class="metric"><div class="metric-label">Total disbursed</div><div class="metric-val mv-green">₹11.2L</div><div class="metric-sub mv-green">▲ 34% vs last month</div></div>
+          <div class="metric"><div class="metric-label">Default rate</div><div class="metric-val" style="color:var(--green)">2.1%</div><div class="metric-sub" style="color:var(--muted)">vs 8.4% industry avg</div></div>
+          <div class="metric"><div class="metric-label">Avg time to approve</div><div class="metric-val mv-purple">4.2 hrs</div><div class="metric-sub" style="color:var(--muted)">vs 5 days traditional</div></div>
+          <div class="metric"><div class="metric-label">Cost per lead</div><div class="metric-val mv-amber">₹240</div><div class="metric-sub" style="color:var(--muted)">vs ₹1,100 traditional</div></div>
+        </div>
+        <div class="mini-chart">
+          <h4>Monthly disbursals (₹ lakhs)</h4>
+          <canvas id="lenderChart" height="120"></canvas>
+        </div>
+        <div style="background:rgba(45,217,143,0.05);border:1px solid rgba(45,217,143,0.18);border-radius:var(--r);padding:1.25rem;margin-top:1rem">
+          <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:.5rem">Key Insight</div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7">GigCredit applicants show a 2.1% default rate vs the 8.4% industry average for first-time gig worker borrowers. Continuous AI scoring builds genuine financial discipline — not just a better number — resulting in stronger repayment behavior post-disbursement.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const voiceResponses = {
+  'score kya hai': 'Aapka current readiness score 67% hai, Ramesh. Aap ₹50,000 ke loan se 33 points door hain. Is hafte 2 aur bills UPI se bharen — isse score 4-5 points badhega. 📊',
+  'kitna kamaya': 'Is mahine aapne ab tak ₹18,400 kamaye hain — ₹14,200 UPI se aur ₹4,200 cash (declared). Pichhle mahine se 8% zyada hai. Bahut accha! 💪',
+  'loan ke liye': 'Stashfin ke liye aapko chahiye: (1) ₹15,000+ monthly income — ✅, (2) 4 mahine consistent history — ✅, (3) 3 bills UPI se — 2 aur baaki hain. Bas yahi ek kaam karo! 🏦',
+  'score kab': 'Agar aap is hafte 2 bills UPI se bharen, score 71% ho jayega. Projected: 80%+ milestone agle 4 haftein mein — Stashfin approval ke liye kaafi hai. 📈',
+};
+
+function sendVoiceMsg() {
+  const input = document.getElementById('voiceInput');
+  const text = input.value.trim();
+  if (!text) return;
+  addChatMsg(text, 'user');
+  input.value = '';
+  setTimeout(() => {
+    const key = Object.keys(voiceResponses).find(k => text.toLowerCase().includes(k.split(' ')[0].toLowerCase()));
+    const reply = key ? voiceResponses[key] : 'Samajh gaya! Aapka readiness score 67% hai aur aap sahi direction mein ja rahe hain. Score continuously update hota rehta hai jab bhi aap earn karte hain ya bills pay karte hain. Koi specific sawaal? 🙏';
+    addChatMsg(reply, 'bot');
+  }, 600);
+}
+
+function quickAsk(q) { document.getElementById('voiceInput').value = q; sendVoiceMsg(); }
+function addChatMsg(text, type) {
+  const chat = document.getElementById('voiceChat');
+  const div = document.createElement('div');
+  div.innerHTML = type === 'user'
+    ? `<div style="display:flex;justify-content:flex-end"><div class="chat-msg msg-user">${text}</div></div>`
+    : `<div><div class="msg-label" style="color:var(--muted);font-size:10px">GigCredit Assistant</div><div class="chat-msg msg-bot">${text}</div></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// AI FAB chat
+const aiReplies = [
+  "Your score is at 67%. To hit 80%, pay 2 more bills via UPI this month — that alone adds ~12 points. 📈",
+  "Good question! GigCredit scores update daily. As long as you're earning and paying bills via UPI, your score keeps climbing continuously. 🔄",
+  "Your strongest signal is income regularity (82%). Your weakest is bill payment history (35%). Focus there for maximum score gain. 🎯",
+  "The predatory loan you scanned had a true APR of 182%. Your matched lenders (Stashfin, KreditBee) offer similar amounts at 6× lower cost. 🛡️",
+  "You're in Stage 2 of your Credit Journey. Complete 2 more milestones to unlock Stage 3 — Loan Ready — which activates full lender matching. 🗺️",
+];
+let aiIdx = 0;
+function toggleAiChat() {
+  document.getElementById('aiChatPanel').classList.toggle('open');
+}
+function sendAiChat() {
+  const input = document.getElementById('aiChatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const msgs = document.getElementById('aiChatMessages');
+  const userDiv = document.createElement('div');
+  userDiv.innerHTML = `<div style="display:flex;justify-content:flex-end"><div class="chat-msg msg-user" style="font-size:12px">${text}</div></div>`;
+  msgs.appendChild(userDiv);
+  input.value = '';
+  setTimeout(() => {
+    const botDiv = document.createElement('div');
+    botDiv.innerHTML = `<div><div class="msg-label" style="color:var(--muted);font-size:10px">GigCredit AI</div><div class="chat-msg msg-bot" style="font-size:12px">${aiReplies[aiIdx % aiReplies.length]}</div></div>`;
+    msgs.appendChild(botDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+    aiIdx++;
+  }, 700);
+}
+
+let micOn = false;
+function toggleMic() {
+  micOn = !micOn;
+  document.getElementById('micBtn').classList.toggle('recording', micOn);
+  document.getElementById('micBtn').textContent = micOn ? '⏹' : '🎤';
+  if (micOn) {
+    showToast('Recording... (demo mode)', 'purple');
+    setTimeout(() => {
+      if (micOn) {
+        micOn = false;
+        document.getElementById('micBtn').classList.remove('recording');
+        document.getElementById('micBtn').textContent = '🎤';
+        document.getElementById('voiceInput').value = 'Mera score kya hai?';
+        sendVoiceMsg();
+      }
+    }, 2000);
+  }
+}
+
+function selectLang(el, lang) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  showToast('Language: ' + el.textContent, 'purple');
+}
+
+function logCash() {
+  const amt = document.getElementById('cash-amt').value;
+  if (!amt) { showToast('Please enter an amount', 'purple'); return; }
+  showToast('₹' + parseInt(amt).toLocaleString('en-IN') + ' logged! (0.2× weight for cash)', 'green');
+  document.getElementById('cash-amt').value = '';
+}
+
+function analyzeLoan() {
+  const terms = document.getElementById('loan-terms').value;
+  if (!terms.trim()) { showToast('Please paste loan terms first', 'purple'); return; }
+  document.getElementById('loan-result').style.display = 'block';
+  showToast('Analysis complete — predatory terms detected!', 'amber');
+}
+
+function updateSim() {
+  const income = parseInt(document.getElementById('sl-income').value);
+  const months = parseInt(document.getElementById('sl-months').value);
+  const cash = parseInt(document.getElementById('sl-cash').value);
+  const bills = parseInt(document.getElementById('sl-bills').value);
+  document.getElementById('sv-income').textContent = '₹' + income.toLocaleString('en-IN');
+  document.getElementById('sv-months').textContent = months + ' month' + (months > 1 ? 's' : '');
+  document.getElementById('sv-cash').textContent = cash + '%';
+  document.getElementById('sv-bills').textContent = bills + ' bill' + (bills !== 1 ? 's' : '');
+  let score = 40;
+  score += Math.min(20, (income - 5000) / 1500);
+  score += months * 3;
+  score += (100 - cash) * 0.15;
+  score += bills * 4;
+  score = Math.min(99, Math.max(20, Math.round(score)));
+  const delta = score - 67;
+  const weeks = Math.max(7, Math.round((80 - score) / 2) * 7);
+  document.getElementById('sim-score').textContent = score + '%';
+  document.getElementById('sim-score').style.color = score >= 80 ? 'var(--green)' : score >= 65 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('sim-delta').textContent = (delta >= 0 ? '+' : '') + delta + 'pts';
+  document.getElementById('sim-delta').style.color = delta >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('sim-weeks').textContent = score >= 80 ? 'Ready now!' : weeks + ' days';
+}
+
+function obNext(step) {
+  document.querySelectorAll('.onboard-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('os' + step).classList.add('active');
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('op' + i);
+    dot.classList.toggle('done', i < step);
+    dot.classList.toggle('active', i === step);
+  }
+}
+
+function selectPlat(el) {
+  document.querySelectorAll('.plat-opt').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const map = { landing: 0, onboard: 1, worker: 2, lender: 3 };
+  const links = document.querySelectorAll('.nav-link');
+  if (links[map[page]]) links[map[page]].classList.add('active');
+  window.scrollTo(0, 0);
+  if (page === 'worker') { setTimeout(drawGauge, 100); setTimeout(drawProgress, 200); }
+  if (page === 'lender') setTimeout(drawLenderChart, 100);
+}
+
+function showWorkerSection(sec, el) {
+  document.querySelectorAll('[id^="ws-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('ws-' + sec).style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (sec === 'progress') setTimeout(drawProgress, 100);
+  if (sec === 'simulator') setTimeout(updateSim, 100);
+}
+
+function showLenderSection(sec, el) {
+  document.querySelectorAll('[id^="ls-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('ls-' + sec).style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (sec === 'analytics') setTimeout(drawLenderChart, 100);
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show toast-' + (type || 'purple');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function drawGauge() {
+  const canvas = document.getElementById('gaugeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = 160; canvas.height = 160;
+  const cx = 80, cy = 80, r = 65, lw = 12;
+  const start = Math.PI * 0.75, end = Math.PI * 2.25;
+  ctx.clearRect(0, 0, 160, 160);
+  ctx.beginPath(); ctx.arc(cx, cy, r, start, end);
+  ctx.strokeStyle = '#1C1C2E'; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
+  const pct = 0.67;
+  const fillEnd = start + (end - start) * pct;
+  const grad = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
+  grad.addColorStop(0, '#7C6FFF'); grad.addColorStop(1, '#F5A623');
+  ctx.beginPath(); ctx.arc(cx, cy, r, start, fillEnd);
+  ctx.strokeStyle = grad; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
+}
+
+function drawProgress() {
+  const canvas = document.getElementById('progressChart');
+  if (!canvas || !window.Chart) return;
+  if (canvas._chart) canvas._chart.destroy();
+  canvas._chart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: ['Dec 14','Dec 21','Dec 28','Jan 4','Jan 11','Jan 17'],
+      datasets: [{
+        label: 'Readiness Score', data: [42, 47, 52, 58, 63, 67],
+        borderColor: '#7C6FFF', backgroundColor: 'rgba(124,111,255,0.08)',
+        borderWidth: 2, pointBackgroundColor: '#7C6FFF', pointRadius: 4, tension: 0.4, fill: true
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: {
+      y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8A8899', callback: v => v + '%' } },
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8A8899' } }
+    }}
+  });
+}
+
+function drawLenderChart() {
+  const canvas = document.getElementById('lenderChart');
+  if (!canvas || !window.Chart) return;
+  if (canvas._chart) canvas._chart.destroy();
+  canvas._chart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: ['Oct', 'Nov', 'Dec', 'Jan'],
+      datasets: [{ label: 'Disbursals (₹L)', data: [2.4, 5.1, 8.7, 11.2], backgroundColor: 'rgba(45,217,143,0.18)', borderColor: '#2DD98F', borderWidth: 1.5, borderRadius: 6 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8A8899', callback: v => '₹' + v + 'L' } },
+      x: { grid: { display: false }, ticks: { color: '#8A8899' } }
+    }}
+  });
+}
+
+setTimeout(drawGauge, 500);
+</script>
+</body>
+</html>
